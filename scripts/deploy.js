@@ -22,7 +22,7 @@ async function main() {
   console.log("Greeter deployed to:", greeter.address);
 
   const TestToken = await hre.ethers.getContractFactory("TestToken");
-  const testToken = await TestToken.deploy(100000000);
+  const testToken = await TestToken.deploy(10000000000000);
   await testToken.deployed();
 
   console.log("TestToken deployed to: ", testToken.address);
