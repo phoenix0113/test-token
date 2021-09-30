@@ -1,5 +1,16 @@
 import styled from "styled-components";
 
+export const HomeWrapper = styled.div`
+  display: flex;
+  margin: 50px;
+  justify-content: space-around;
+`;
+
+export const TokenContent = styled.div`
+  width: 100%;
+  padding: 0 50px;
+`;
+
 export const Content = styled.div`
   max-width: 500px;
   margin: 50px auto;

@@ -4,10 +4,12 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract TestToken is ERC20 {
+contract TestTokenERC20 is ERC20 {
   uint SwapRate = 1000;
+  address Owner;
 
-  constructor(uint256 initialSupply) ERC20("ERC20 Test Token", "ETT") {
+  constructor(uint256 initialSupply) ERC20("ERC20 Test Token", "ETT20") {
+    Owner = msg.sender;
     _mint(msg.sender, initialSupply);
     decimals();
   }
@@ -16,7 +18,11 @@ contract TestToken is ERC20 {
     return 5;
   }
 
-  function swapRate () public view returns (uint) {
+  function swapRate() public view returns (uint) {
     return SwapRate;
+  }
+
+  function buy(uint256 _amount) public payable {
+    _transfer(Owner, msg.sender, _amount);
   }
 }
