@@ -15,7 +15,7 @@ contract TestTokenERC20 is ERC20 {
   }
 
   function decimals() public view virtual override returns (uint8) {
-    return 5;
+    return 0;
   }
 
   function swapRate() public view returns (uint) {
