@@ -16,16 +16,20 @@ async function main() {
   // We get the contract to deploy
   const Greeter = await hre.ethers.getContractFactory("Greeter");
   const greeter = await Greeter.deploy("Hello, Hardhat!");
-
   await greeter.deployed();
-
   console.log("Greeter deployed to:", greeter.address);
 
+  // Deploy ERC20 Token
   const TestTokenERC20 = await hre.ethers.getContractFactory("TestTokenERC20");
   const testTokenERC20 = await TestTokenERC20.deploy(1000000);
   await testTokenERC20.deployed();
-
   console.log("TestTokenERC20 deployed to: ", testTokenERC20.address);
+
+  // Deploy NFT Token
+  const TestNFT = await hre.ethers.getContractFactory("TestNFT");
+  const testNFT = await TestNFT.deploy();
+  await testNFT.deployed();
+  console.log("TestNFT deployed to: ", testNFT.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
