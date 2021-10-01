@@ -13,7 +13,7 @@ export default function Navbar({changeSample}: iProps) {
     changeSample(sample);
   }
   return (
-    <Box sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+    <Box sx={{ width: '100%', maxWidth: 260, bgcolor: 'background.paper' }}>
       <List component="nav" aria-label="secondary mailbox folder">
         {
           Pages.map(page => (

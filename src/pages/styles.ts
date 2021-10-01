@@ -27,3 +27,8 @@ export const Right = styled.div`
   text-align: right;
   padding: 10px 0;
 `;
+
+export const NFTContent = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;

@@ -5,3 +5,10 @@ export const Pages = [
   "ERC20 Token",
   "ERC721 Token",
 ];
+export interface NFTResponse {
+  name: string;
+  description: string;
+  image: string;
+  attributes: Array<Object>;
+  price: number;
+}
