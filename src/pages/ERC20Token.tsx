@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button, Typography, TextField } from "@mui/material";
+import { Button, Typography, TextField, CircularProgress } from "@mui/material";
 import { ethers, Contract } from "ethers";
 import TestTokenERC20Artifacts from "artifacts/contracts/TestTokenERC20.sol/TestTokenERC20.json";
-import { TokenContent, Section, Right } from "./styles";
+import { TokenContent, Section, Right, CircularProgressContent } from "./styles";
 import { ERC20_DEPLOY_ADDRESS, GAS_FEE } from "utils/utils";
 
 declare global {
@@ -12,10 +12,10 @@ declare global {
 }
 
 export default function ERC20Token() {
+  const [isLoading, checkLoading] = useState(false);
   const [mintStatus, setMintStatus] = useState(false); // Status to set sales permission
   const [testTokenERC20Name, setTestTokenERC20Name] = useState(""); // Test ERC20 Token's Name
   const [testTokenERC20Symbol, setTestTokenERC20Symbol] = useState(""); // Test ERC20 Token's Symbol
-  const [decimalTokenERC20, setDecimalTokenERC20] = useState(0); // Decimal of Test ERC20 Token
   const [swapRate, setSwapRate] = useState(0); // Swap rate with Ether
   const [currentTestBalance, setCurrentTestBalance] = useState(0); // Current Test ERC20 Token's Balance
   const [currentEtherBalance, setCurrentEtherBalance] = useState(0); // Current Ether's Balance
@@ -35,6 +35,7 @@ export default function ERC20Token() {
 
   // function for fetch data
   const onFetchData = async () => {
+    checkLoading(true);
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const contract = new Contract(ERC20_DEPLOY_ADDRESS, TestTokenERC20Artifacts.abi, signer);
@@ -44,12 +45,11 @@ export default function ERC20Token() {
       setTestTokenERC20Name(await contract.name());
       setTestTokenERC20Symbol(await contract.symbol());
       setSwapRate(Number(await contract.swapRate()));
-      const decimal = 10 ** (Number(await contract.decimals()));
-      setDecimalTokenERC20(decimal);
-      setCurrentTestBalance(Number(await contract.balanceOf(address)) / decimal);
+      setCurrentTestBalance(Number(await contract.balanceOf(address)));
     } catch (err) {
       console.log(`Error: ${err}`);
     }
+    checkLoading(false);
   }
 
   // function for change the mint permission
@@ -66,6 +66,7 @@ export default function ERC20Token() {
     const signer = provider.getSigner(0);
     const contract = new Contract(ERC20_DEPLOY_ADDRESS, TestTokenERC20Artifacts.abi, signer);
     const ether_amount = buyAmount / swapRate;
+    checkLoading(true);
     if (currentEtherBalance > ether_amount) {
       try {
         await contract.buy(buyAmount, { value: ethers.utils.parseEther(ether_amount.toString()) });
@@ -79,6 +80,7 @@ export default function ERC20Token() {
     } else {
       alert("Not enough Test Token in your wallet!");
     }
+    checkLoading(false);
   };
 
   // function for send tokens
@@ -86,6 +88,7 @@ export default function ERC20Token() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner(0);
     const contract = new Contract(ERC20_DEPLOY_ADDRESS, TestTokenERC20Artifacts.abi, signer);
+    checkLoading(true);
     if (currentTestBalance > recipientAmount) {
       try {
         await contract["transfer(address,uint256)"](recipientAddress, recipientAmount, { gasPrice: GAS_FEE });
@@ -98,88 +101,101 @@ export default function ERC20Token() {
     } else {
       alert("Not enough Test Token in your wallet!");
     }
+    checkLoading(false);
   };
 
   return (
     <TokenContent>
-      <Section>
-        <Typography>Sales Permission: {mintStatus ? "True" : "False"}</Typography>
-      </Section>
-      <Right>
-        <Button
-          variant="contained"
-          disableElevation
-          onClick={onChangeMintStatus}
-        >
-          {mintStatus ? "Stop Sale" : "Start Sale"}
-        </Button>
-      </Right>
-
       {
-        (mintStatus) && (
+        (isLoading) ? (
+          <CircularProgressContent>
+            <CircularProgress />
+          </CircularProgressContent>
+        ) : (
           <>
             <Section>
-              <Typography>Current {testTokenERC20Name}'s Balance:</Typography>
-              <Typography>{currentTestBalance} {testTokenERC20Symbol}</Typography>
-            </Section>
-
-            <Section>
-              <Typography>Current Ether's Balance:</Typography>
-              <Typography>{currentEtherBalance} ETH</Typography>
-            </Section>
-
-            <Section>
-              <Typography>Buy Tokens: </Typography>
-              <TextField
-                id="standard-basic"
-                type="number"
-                label="Token's Amount"
-                variant="standard"
-                value={buyAmount}
-                onChange={(e) => setBuyAmount(+e.target.value)}
-              />
+              <Typography>Sales Permission: {mintStatus ? "True" : "False"}</Typography>
             </Section>
             <Right>
               <Button
                 variant="contained"
                 disableElevation
-                onClick={onMint}
+                onClick={onChangeMintStatus}
               >
-                Buy Tokens ({Number(buyAmount / swapRate)} ETH)
+                {mintStatus ? "Stop Sale" : "Start Sale"}
               </Button>
             </Right>
 
-            <Section>
-              <Typography>Recipient Address: </Typography>
-              <TextField
-                id="standard-basic"
-                label="Recipient Address"
-                variant="standard"
-                value={recipientAddress}
-                onChange={(e) => setRecipientAddress(e.target.value)}
-              />
-            </Section>
+            {
+              (mintStatus) && (
+                <>
+                  <Section>
+                    <Typography>Current {testTokenERC20Name}'s Balance:</Typography>
+                    <Typography>{currentTestBalance} {testTokenERC20Symbol}</Typography>
+                  </Section>
 
-            <Section>
-              <Typography>Recipient Amount: </Typography>
-              <TextField
-                id="standard-basic"
-                type="number"
-                label="Recipient Amount"
-                variant="standard"
-                value={recipientAmount}
-                onChange={(e) => setRecipientAmount(+e.target.value)}
-              />
-            </Section>
-            <Right>
-              <Button
-                variant="contained"
-                disableElevation
-                onClick={onSend}
-              >
-                Send Tokens
-              </Button>
-            </Right>
+                  <Section>
+                    <Typography>Current Ether's Balance:</Typography>
+                    <Typography>{currentEtherBalance} ETH</Typography>
+                  </Section>
+
+                  <Section>
+                    <Typography>Buy Tokens: </Typography>
+                    <TextField
+                      id="standard-basic"
+                      type="number"
+                      label="Token's Amount"
+                      variant="standard"
+                      value={buyAmount}
+                      onChange={(e) => setBuyAmount(+e.target.value)}
+                    />
+                  </Section>
+                  
+                  <Right>
+                    <Button
+                      variant="contained"
+                      disableElevation
+                      onClick={onMint}
+                    >
+                      Buy Tokens ({Number(buyAmount / swapRate)} ETH)
+                    </Button>
+                  </Right>
+
+                  <Section>
+                    <Typography>Recipient Address: </Typography>
+                    <TextField
+                      id="standard-basic"
+                      label="Recipient Address"
+                      variant="standard"
+                      value={recipientAddress}
+                      onChange={(e) => setRecipientAddress(e.target.value)}
+                    />
+                  </Section>
+
+                  <Section>
+                    <Typography>Recipient Amount: </Typography>
+                    <TextField
+                      id="standard-basic"
+                      type="number"
+                      label="Recipient Amount"
+                      variant="standard"
+                      value={recipientAmount}
+                      onChange={(e) => setRecipientAmount(+e.target.value)}
+                    />
+                  </Section>
+                  
+                  <Right>
+                    <Button
+                      variant="contained"
+                      disableElevation
+                      onClick={onSend}
+                    >
+                      Send Tokens
+                    </Button>
+                  </Right>
+                </>
+              )
+            }
           </>
         )
       }

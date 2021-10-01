@@ -32,3 +32,11 @@ export const NFTContent = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
+
+export const CircularProgressContent = styled.div`
+  width: 100%;
+  height: 80vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
