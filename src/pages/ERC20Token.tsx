@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Button, Typography, TextField, CircularProgress } from "@mui/material";
 import { ethers, Contract } from "ethers";
+import Web3 from "web3";
+import { AbiItem } from "web3-utils";
 import TestTokenERC20Artifacts from "artifacts/contracts/TestTokenERC20.sol/TestTokenERC20.json";
 import { TokenContent, Section, Right, CircularProgressContent } from "./styles";
 import { ERC20_DEPLOY_ADDRESS, GAS_FEE } from "utils/utils";
@@ -36,6 +38,14 @@ export default function ERC20Token() {
   // function for fetch data
   const onFetchData = async () => {
     checkLoading(true);
+    const web3 = new Web3(Web3.givenProvider);
+    const web3_accounts = await web3.eth.getAccounts();
+    const web3_contract = new web3.eth.Contract(TestTokenERC20Artifacts.abi as AbiItem[], ERC20_DEPLOY_ADDRESS);
+    console.log("Token Name: ", await web3_contract.methods.name().call());
+    console.log("Token Symbol: ", await web3_contract.methods.symbol().call());
+    console.log("Token Swap Rate: ", await web3_contract.methods.swapRate().call());
+    console.log("Token Balance: ", await web3_contract.methods.balanceOf(web3_accounts[0]).call());
+
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const contract = new Contract(ERC20_DEPLOY_ADDRESS, TestTokenERC20Artifacts.abi, signer);
